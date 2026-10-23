@@ -4,6 +4,7 @@ import { AuthStore } from "./auth-store";
 import { openDatabase } from "./db";
 import { createAuthRouter, requireAuth, type AuthenticatedRequest } from "./auth-routes";
 import { createBudgetRouter } from "./budget-routes";
+import { createRecurrenceRouter } from "./recurrence-routes";
 import type { DatabaseSync } from "node:sqlite";
 
 export interface ApiOptions {
@@ -30,6 +31,7 @@ export function createApp(options: ApiOptions = {}): Express {
     if (!ledger) { ledger = new Ledger(); ledgers.set(userId, ledger); }
     return ledger;
   };
+  app.use("/api/recurrence", authenticated, createRecurrenceRouter(db, ledgerFor));
   app.get("/accounts", authenticated, (req: AuthenticatedRequest, res) => res.json(ledgerFor(req).listAccounts()));
   app.post("/accounts", authenticated, (req: AuthenticatedRequest, res) => {
     try { return res.status(201).json(ledgerFor(req).addAccount(req.body)); }
