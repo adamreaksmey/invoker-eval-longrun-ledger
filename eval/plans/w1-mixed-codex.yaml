@@ -1,7 +1,7 @@
 name: "Benchmark V4 W1 — persisted ledger (Arm C mixed Codex)"
 description: |
   Same DAG as Arm B; model routing frozen before execution.
-  Lower-cost models for mechanical tasks; gpt-5.6-terra for integration/architecture.
+  Lower-cost models for mechanical tasks; gpt-reserve for integration/architecture.
   Claude excluded. ChatGPT Codex subscription only.
 onFinish: pull_request
 mergeMode: external_review
@@ -31,7 +31,7 @@ tasks:
 
   - id: w1-service-layer
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Extract LedgerService with domain rules testable without Express.
     prompt: |
@@ -41,7 +41,7 @@ tasks:
 
   - id: w1-api-integration
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Wire Express routes to persisted LedgerService; remove in-memory Map of Ledger.
     prompt: |
@@ -51,7 +51,7 @@ tasks:
 
   - id: w1-restart-preservation
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Prove data survives API process restart.
     prompt: |
@@ -72,7 +72,7 @@ tasks:
 
   - id: w1-web-smoke-fixes
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Fix web/API regressions so README auth smoke and Playwright spec pass.
     prompt: |

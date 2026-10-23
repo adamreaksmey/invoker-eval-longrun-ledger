@@ -11,7 +11,7 @@ repoUrl: https://github.com/adamreaksmey/invoker-eval-longrun-ledger.git
 tasks:
   - id: w1-migrations
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Add versioned SQLite migrations for accounts and transactions per eval/specs/w1-persisted-ledger.md.
       Acceptance criteria: migration applies on empty DB; schema_version table exists.
@@ -21,7 +21,7 @@ tasks:
 
   - id: w1-persistence-layer
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Implement SQLite-backed ledger store per user (accounts + transactions).
     prompt: |
@@ -31,7 +31,7 @@ tasks:
 
   - id: w1-service-layer
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Extract LedgerService with domain rules testable without Express.
     prompt: |
@@ -41,7 +41,7 @@ tasks:
 
   - id: w1-api-integration
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Wire Express routes to persisted LedgerService; remove in-memory Map of Ledger.
     prompt: |
@@ -51,7 +51,7 @@ tasks:
 
   - id: w1-restart-preservation
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Prove data survives API process restart.
     prompt: |
@@ -61,7 +61,7 @@ tasks:
 
   - id: w1-core-exports
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Single owner for packages/core/src/index.ts exports after new modules exist.
     prompt: |
@@ -72,7 +72,7 @@ tasks:
 
   - id: w1-web-smoke-fixes
     executionAgent: codex
-    executionModel: gpt-5.6-terra
+    executionModel: gpt-reserve
     description: |
       Fix web/API regressions so README auth smoke and Playwright spec pass.
     prompt: |
