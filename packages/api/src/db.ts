@@ -29,6 +29,24 @@ export function openDatabase(filename: string): DatabaseSync {
       UNIQUE (user_id, category_id, month)
     );
     CREATE INDEX IF NOT EXISTS budgets_user_month_idx ON budgets(user_id, month);
+    CREATE TABLE IF NOT EXISTS recurrence_rules (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      account_id TEXT NOT NULL,
+      amount_cents INTEGER NOT NULL,
+      description TEXT,
+      start_date TEXT NOT NULL,
+      schedule_json TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS recurrence_rules_user_idx ON recurrence_rules(user_id);
+    CREATE TABLE IF NOT EXISTS recurrence_applications (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      rule_id TEXT NOT NULL REFERENCES recurrence_rules(id) ON DELETE CASCADE,
+      occurrence_date TEXT NOT NULL,
+      transaction_id TEXT NOT NULL,
+      PRIMARY KEY (user_id, rule_id, occurrence_date)
+    );
   `);
   return db;
 }
