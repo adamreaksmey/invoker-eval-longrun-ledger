@@ -1,0 +1,13 @@
+{
+  "version": "2026-10-23",
+  "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "currency": "USD",
+  "perMillionTokens": {
+    "claude-opus-5-5": { "input": 4, "output": 20, "cacheRead": 0.2, "cacheWrite5m": 5 },
+    "claude-sonnet-5-5": { "input": 2, "output": 10, "cacheRead": 0.1, "cacheWrite5m": 2.5 },
+    "claude-haiku-5-5": { "input": 0.1, "output": 0.5, "cacheRead": 0.01, "cacheWrite5m": 0.125 },
+    "opus": { "aliasOf": "claude-opus-5-5" },
+    "sonnet": { "aliasOf": "claude-sonnet-5-5" },
+    "haiku": { "aliasOf": "claude-haiku-5-5" }
+  }
+}
