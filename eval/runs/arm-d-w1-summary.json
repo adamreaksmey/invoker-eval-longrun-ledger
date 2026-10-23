@@ -1,0 +1,11 @@
+{
+  "arm": "D",
+  "workload": "W1",
+  "baselineSha": "0d3bf647d10a0b1dd9a3c1632ddb1b6125279797",
+  "branch": "benchmark/v3/arm-d-w1",
+  "verifyTier1Pass": true,
+  "verifyTier2Pass": true,
+  "deliverablesComplete": { "D1": true, "D2": true, "D3": true, "D4": true, "D5": true },
+  "notes": "Implemented in a single Cursor agent pass without Invoker. Added migration runner (schema_migrations; v1 auth, v2 accounts/transactions keyed by user_id+id), Express-free LedgerService with a LedgerRepository interface (in-memory repo in core, SqliteLedgerRepository in api), persisted per-user API with unchanged routes, and migration, service and restart-persistence tests. Fixed a baseline frontend bug where form.reset() ran on a null event.currentTarget after an await, which made the Add account / Add transaction flows show an error. Copied verify.mjs, the Playwright config, the e2e start script, smoke.spec.ts and the W1 spec from benchmark/v3-infrastructure (no Invoker plans), enabled the previously fixme ledger smoke test, and made the e2e API use a temp DATABASE_PATH. Verified via `node eval/scripts/verify.mjs --tier 2`: npm ci, npm test (api 14, core 27), npm run build and Playwright smoke (2 tests) all passed. Token billing is not accessible to this agent, so token/cost usage is unknown. One full pass; no retries needed.",
+  "wallClockMinutes": 3
+}
