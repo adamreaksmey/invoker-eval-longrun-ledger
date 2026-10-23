@@ -1,0 +1,97 @@
+name: "Benchmark V4 W1 — persisted ledger (Arm C mixed Codex)"
+description: |
+  Same DAG as Arm B; model routing frozen before execution.
+  Lower-cost models for mechanical tasks; gpt-5.6-terra for integration/architecture.
+  Claude excluded. ChatGPT Codex subscription only.
+onFinish: pull_request
+mergeMode: external_review
+baseBranch: eval-v4-w1-baseline
+repoUrl: https://github.com/adamreaksmey/invoker-eval-longrun-ledger.git
+
+tasks:
+  - id: w1-migrations
+    executionAgent: codex
+    executionModel: gpt-6-luna
+    description: |
+      Add versioned SQLite migrations for accounts and transactions per eval/specs/w1-persisted-ledger.md.
+      Acceptance criteria: migration applies on empty DB; schema_version table exists.
+    prompt: |
+      Read eval/specs/w1-persisted-ledger.md. Implement a small migration runner in packages/api (or shared module) and SQL migrations for accounts/transactions keyed by user_id. Do not change HTTP routes yet. Add tests proving migration v1 applies cleanly on empty DB. Commit your changes.
+    dependencies: []
+
+  - id: w1-persistence-layer
+    executionAgent: codex
+    executionModel: gpt-6-luna
+    description: |
+      Implement SQLite-backed ledger store per user (accounts + transactions).
+    prompt: |
+      Implement persistence for ledger accounts and transactions in SQLite, scoped per authenticated user_id. Keep integer cents. Add unit tests with in-memory or temp DB files. Do not edit packages/core/src/index.ts in this task. Commit your changes.
+    dependencies:
+      - w1-migrations
+
+  - id: w1-service-layer
+    executionAgent: codex
+    executionModel: gpt-5.6-terra
+    description: |
+      Extract LedgerService with domain rules testable without Express.
+    prompt: |
+      Add a LedgerService (in core or api/services) wrapping persistence with the same rules as packages/core/src/ledger.ts (unknown account errors, duplicate ids, non-zero amounts). Unit test the service. You may keep the in-memory Ledger class for tests or migrate callers—preserve behavior. Commit your changes.
+    dependencies:
+      - w1-persistence-layer
+
+  - id: w1-api-integration
+    executionAgent: codex
+    executionModel: gpt-5.6-terra
+    description: |
+      Wire Express routes to persisted LedgerService; remove in-memory Map of Ledger.
+    prompt: |
+      Replace the in-memory Map<string, Ledger> in packages/api/src/index.ts with persisted LedgerService per user. Preserve JSON response shapes and auth middleware. Add supertest integration tests for register/login, CRUD accounts/transactions, balance endpoint. Commit your changes.
+    dependencies:
+      - w1-service-layer
+
+  - id: w1-restart-preservation
+    executionAgent: codex
+    executionModel: gpt-5.6-terra
+    description: |
+      Prove data survives API process restart.
+    prompt: |
+      Add an integration test that writes accounts/transactions, simulates restart by creating a new app/db connection (or new createApp instance on same DATABASE_PATH), and asserts balances unchanged. Commit your changes.
+    dependencies:
+      - w1-api-integration
+
+  - id: w1-core-exports
+    executionAgent: codex
+    executionModel: gpt-6-luna
+    description: |
+      Single owner for packages/core/src/index.ts exports after new modules exist.
+    prompt: |
+      Update packages/core/src/index.ts exports only for any new public types/services added in prior tasks. Do not refactor unrelated modules. Commit your changes.
+    dependencies:
+      - w1-service-layer
+      - w1-api-integration
+
+  - id: w1-web-smoke-fixes
+    executionAgent: codex
+    executionModel: gpt-5.6-terra
+    description: |
+      Fix web/API regressions so README auth smoke and Playwright spec pass.
+    prompt: |
+      If needed, adjust apps/web only for compatibility with persisted API. Fix known form.reset() after await bugs if present. Do not add new features. Enable ledger account smoke in eval/e2e/smoke.spec.ts if still fixme. Goal: eval/e2e/smoke.spec.ts passes. Commit your changes.
+    dependencies:
+      - w1-api-integration
+
+  - id: verify-w1-tier1
+    description: |
+      Tier 1 verification gate for W1.
+    command: "node eval/scripts/verify.mjs --tier 1"
+    dependencies:
+      - w1-restart-preservation
+      - w1-core-exports
+      - w1-web-smoke-fixes
+
+  - id: verify-w1-tier2
+    description: |
+      Tier 2 Playwright gate for W1.
+    command: "npx playwright install chromium && node eval/scripts/verify.mjs --tier 2"
+    dependencies:
+      - verify-w1-tier1

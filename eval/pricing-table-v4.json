@@ -1,0 +1,17 @@
+{
+  "version": "2026-10-23-v4",
+  "billingMode": "chatgpt_subscription_included",
+  "notes": [
+    "Codex CLI authenticated via ChatGPT login (not OPENAI_API_KEY).",
+    "No separately metered Anthropic/Claude usage.",
+    "Public per-token list prices for ChatGPT-subscription Codex models are not published for this auth path.",
+    "Primary economic metric for V4: token totals + wall clock + intervention minutes; API-equivalent USD marked unavailable unless a published rate card applies."
+  ],
+  "modelsVerified": [
+    { "id": "gpt-5.6-terra", "role": "uniform_baseline_and_hard_tasks", "probeOk": true },
+    { "id": "gpt-6-luna", "role": "lower_cost_mechanical", "probeOk": true },
+    { "id": "gpt-5.6-luna", "role": "available_unused_in_v4_pilot", "probeOk": true },
+    { "id": "gpt-reserve", "role": "available_unused_in_v4_pilot", "probeOk": true }
+  ],
+  "apiEquivalentUsd": null
+}
