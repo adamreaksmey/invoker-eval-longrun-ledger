@@ -22,4 +22,13 @@ Start the web app in a second terminal with `npm run dev --workspace @personal-l
 
 `npm run build` builds the web app and all other workspaces.
 
+## API reference
+
+See [docs/API.md](docs/API.md) for the local HTTP API, including authentication, budgets, and recurring transactions.
+
+## Tests
+
+- `npm test` runs the Vitest suites in the workspaces from the repository root.
+- `npm run test:e2e --workspace @personal-ledger/web` runs the Playwright browser tests. The Playwright config starts the local API and web app with a temporary SQLite database; no cloud services are used.
+
 Set `SESSION_SECRET` to a long, random value before running the API outside local development. If it is omitted, the API prints a warning and uses an ephemeral development-only secret, which invalidates sessions after restart and must not be used for deployment. Copy `.env.example` to `.env` and supply your own secret.
