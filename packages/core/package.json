@@ -1,0 +1,12 @@
+{
+  "name": "@personal-ledger/core",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "build": "npm test"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}
