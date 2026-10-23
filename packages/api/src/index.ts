@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { createDatabase, type LedgerDatabase } from "./db";
+import { transactionsToCsv } from "./export";
 
 export { createDatabase, LedgerDatabase } from "./db";
 
@@ -14,6 +15,16 @@ async function route(request: IncomingMessage, response: ServerResponse, db: Led
   const method = request.method ?? "GET";
   const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
   try {
+    if (parts.length === 1 && parts[0] === "export.csv" && method === "GET") {
+      const accountId = url.searchParams.get("accountId") ?? undefined;
+      if (accountId !== undefined && !db.getAccount(accountId)) throw new Error(`Unknown account: ${accountId}`);
+      const csv = transactionsToCsv(db.listTransactions(accountId));
+      response.statusCode = 200;
+      response.setHeader("content-type", "text/csv; charset=utf-8");
+      response.setHeader("content-disposition", 'attachment; filename="transactions.csv"');
+      response.end(csv);
+      return;
+    }
     if (parts[0] === "accounts" && parts.length === 1) {
       if (method === "GET") return send(response, 200, db.listAccounts());
       if (method === "POST") {
