@@ -18,11 +18,9 @@ export class Ledger {
   private readonly transactionIds = new Set<string>();
 
   addAccount(account: Account): Account {
-    const id = requireText(account?.id, "Account id");
-    const name = requireText(account?.name, "Account name");
-    if (this.accounts.has(id)) throw new Error(`Account already exists: ${id}`);
-    const saved = { id, name };
-    this.accounts.set(id, saved);
+    const saved = parseAccount(account);
+    if (this.accounts.has(saved.id)) throw new Error(`Account already exists: ${saved.id}`);
+    this.accounts.set(saved.id, saved);
     return { ...saved };
   }
 
@@ -36,23 +34,11 @@ export class Ledger {
   }
 
   addTransaction(transaction: Transaction): Transaction {
-    const id = requireText(transaction?.id, "Transaction id");
-    const accountId = requireText(transaction?.accountId, "Account id");
-    if (!this.accounts.has(accountId)) throw new Error(`Unknown account: ${accountId}`);
-    if (this.transactionIds.has(id)) throw new Error(`Transaction already exists: ${id}`);
-    if (!Number.isSafeInteger(transaction.amountCents)) {
-      throw new TypeError("Transaction amountCents must be a safe integer");
-    }
-    if (transaction.amountCents === 0) throw new RangeError("Transaction amountCents cannot be zero");
-    const description = transaction.description?.trim();
-    const saved: Transaction = {
-      id,
-      accountId,
-      amountCents: transaction.amountCents,
-      ...(description ? { description } : {}),
-    };
+    const saved = parseTransaction(transaction);
+    if (!this.accounts.has(saved.accountId)) throw new Error(`Unknown account: ${saved.accountId}`);
+    if (this.transactionIds.has(saved.id)) throw new Error(`Transaction already exists: ${saved.id}`);
     this.transactions.push(saved);
-    this.transactionIds.add(id);
+    this.transactionIds.add(saved.id);
     return { ...saved };
   }
 
@@ -67,14 +53,35 @@ export class Ledger {
 
   getBalance(accountId: string): number {
     if (!this.accounts.has(accountId)) throw new Error(`Unknown account: ${accountId}`);
-    let balance = 0;
-    for (const transaction of this.transactions) {
-      if (transaction.accountId !== accountId) continue;
-      balance += transaction.amountCents;
-      if (!Number.isSafeInteger(balance)) throw new RangeError("Account balance exceeds safe integer cents");
-    }
-    return balance;
+    return sumTransactionAmounts(this.transactions.filter((transaction) => transaction.accountId === accountId));
   }
+}
+
+export function parseAccount(account: Account): Account {
+  return {
+    id: requireText(account?.id, "Account id"),
+    name: requireText(account?.name, "Account name"),
+  };
+}
+
+export function parseTransaction(transaction: Transaction): Transaction {
+  const id = requireText(transaction?.id, "Transaction id");
+  const accountId = requireText(transaction?.accountId, "Account id");
+  if (!Number.isSafeInteger(transaction.amountCents)) {
+    throw new TypeError("Transaction amountCents must be a safe integer");
+  }
+  if (transaction.amountCents === 0) throw new RangeError("Transaction amountCents cannot be zero");
+  const description = transaction.description?.trim();
+  return { id, accountId, amountCents: transaction.amountCents, ...(description ? { description } : {}) };
+}
+
+export function sumTransactionAmounts(transactions: readonly Transaction[]): number {
+  let balance = 0;
+  for (const transaction of transactions) {
+    balance += transaction.amountCents;
+    if (!Number.isSafeInteger(balance)) throw new RangeError("Account balance exceeds safe integer cents");
+  }
+  return balance;
 }
 
 export function createLedger(): Ledger {
