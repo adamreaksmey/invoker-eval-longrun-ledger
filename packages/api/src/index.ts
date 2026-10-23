@@ -3,6 +3,7 @@ import { Ledger } from "../../core/src/ledger";
 import { AuthStore } from "./auth-store";
 import { openDatabase } from "./db";
 import { createAuthRouter, requireAuth, type AuthenticatedRequest } from "./auth-routes";
+import { createBudgetRouter } from "./budget-routes";
 import type { DatabaseSync } from "node:sqlite";
 
 export interface ApiOptions {
@@ -22,6 +23,7 @@ export function createApp(options: ApiOptions = {}): Express {
   app.use("/auth", createAuthRouter(authStore, sessionSecret));
 
   const authenticated = requireAuth(authStore, sessionSecret);
+  app.use("/api/budgets", authenticated, createBudgetRouter(db));
   const ledgerFor = (req: AuthenticatedRequest) => {
     const userId = req.user!.id;
     let ledger = ledgers.get(userId);

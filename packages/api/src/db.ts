@@ -19,6 +19,16 @@ export function openDatabase(filename: string): DatabaseSync {
     );
     CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions(expires_at);
+    CREATE TABLE IF NOT EXISTS budgets (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      category_id TEXT NOT NULL,
+      month TEXT NOT NULL,
+      limit_cents INTEGER NOT NULL CHECK (limit_cents > 0),
+      created_at INTEGER NOT NULL,
+      UNIQUE (user_id, category_id, month)
+    );
+    CREATE INDEX IF NOT EXISTS budgets_user_month_idx ON budgets(user_id, month);
   `);
   return db;
 }

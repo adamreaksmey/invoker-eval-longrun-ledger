@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { AuthGate, SessionProvider, useSession } from "./auth";
+import BudgetsPage from "./BudgetsPage";
 
 interface Account { id: string; name: string }
 interface Transaction { id: string; accountId: string; amountCents: number; description?: string }
@@ -18,7 +19,7 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   return response.json();
 }
 
-function Ledger() {
+function Ledger({ onBudgets }: { onBudgets: () => void }) {
   const { user, logout } = useSession();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -68,7 +69,7 @@ function Ledger() {
   const selected = accounts.find(account => account.id === accountId);
   const balance = transactions.filter(item => item.accountId === accountId).reduce((sum, item) => sum + item.amountCents, 0);
   return <div className="app-shell">
-    <header className="topbar"><a className="wordmark" href="#"><span className="brand-mark small">PL</span> Ledger</a><div className="user-actions"><span className="user-name">{user?.username}</span><button className="quiet-button" onClick={() => void logout()}>Sign out</button></div></header>
+    <header className="topbar"><a className="wordmark" href="#"><span className="brand-mark small">PL</span> Ledger</a><div className="user-actions"><button className="quiet-button" onClick={onBudgets}>Budgets</button><span className="user-name">{user?.username}</span><button className="quiet-button" onClick={() => void logout()}>Sign out</button></div></header>
     <main className="dashboard">
       <div className="welcome-row"><div><p className="eyebrow">YOUR PERSONAL LEDGER</p><h1>Good to see you, {user?.username}.</h1><p className="muted">A clear picture of what’s moving.</p></div><div className="date-chip">{new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date())}</div></div>
       {error && <div className="notice" role="alert">{error} <button onClick={() => void load()}>Try again</button></div>}
@@ -91,8 +92,10 @@ function Ledger() {
 
 function AppContent() {
   const { user, loading } = useSession();
+  const [showBudgets, setShowBudgets] = useState(false);
   if (loading) return <div className="loading-screen"><span className="brand-mark">PL</span><p>Opening your ledger…</p></div>;
-  return user ? <Ledger /> : <AuthGate />;
+  if (!user) return <AuthGate />;
+  return showBudgets ? <BudgetsPage onBack={() => setShowBudgets(false)} /> : <Ledger onBudgets={() => setShowBudgets(true)} />;
 }
 
 export default function App() {
