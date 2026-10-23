@@ -1,9 +1,9 @@
 # Invoker Benchmark V4 — Final Report (Cursor + Codex only)
 
-**Report date:** 2026-10-23  
+**Report date:** 2026-10-23 (completed after Codex Plus login on account `d048654b`)  
 **Scope:** Claude excluded. ChatGPT-authenticated Codex + Cursor only.  
-**Baseline:** `eval-v4-w1-baseline` / `88a9efe6b5a96ea1550a883aba3088cb33266986`  
-**Spending:** No new purchases. Subscription-included Codex usage only. **Codex usage limit hit** mid-pilot (retry not before **2026-11-17** per CLI error).
+**Baseline (implementation start):** `eval-v4-w1-baseline` @ `ca9c4d2` (plans retargeted to `gpt-reserve` after `gpt-5.6-terra` capacity errors; earlier tip `88a9efe` was the pre-retarget freeze)  
+**Spending:** ChatGPT Codex Plus ($20) on the correct account. Subscription-included tokens only (no API-equivalent USD). Cursor Pro spend not readable from this agent.
 
 ---
 
@@ -11,17 +11,18 @@
 
 **Does Invoker’s persistent orchestration and model routing provide measurable value over continuous Codex and Cursor on cost per accepted deliverable?**
 
-**Not established for a fully accepted W1 matrix.**
+**On W1 with full acceptance for all four arms: continuous Codex wins on tokens and wall clock; Invoker mixed routing beats Invoker uniform; Cursor matches acceptance with unknown cost.**
 
 | Finding | Evidence |
 |---------|----------|
-| Cursor (Arm D) can fully accept W1 | Independent `verify --tier 2` pass; D1–D5 true |
-| Invoker + uniform Codex (Arm B) can implement most of W1 | 6/7 agent tasks completed; **tier 1 pass** on tip; **tier 2 fail** |
-| Continuous Codex (Arm A) | **Unavailable** after usage limit (and earlier Invoker-skill contamination) |
-| Mixed Codex routing (Arm C) | **Not evaluated** (same usage limit) |
-| Cost-per-accepted-spec for Invoker | **Undefined** (Arm B not fully accepted) |
+| All four arms fully accept W1 | Independent `verify --tier 2` PASS for A, B, C, D |
+| Continuous Codex (A) cheapest tokens | ~900k input / ~9k output; wall ~103s |
+| Invoker uniform (B) accepted but costly | ~2.50M input / ~33k output; wall ~449s |
+| Invoker mixed (C) accepted, ~20% fewer tokens than B | ~2.01M input / ~28k output; wall ~418s |
+| Cursor (D) accepted | Prior V3 tip reused; cost **unknown** |
+| Merge/PR publication | B/C `__merge__` failed (no review provider) — **ignored for eval accept** (verify gates are the accept criterion) |
 
-A credible partial conclusion: **Cursor completed the accepted deliverable set with less operational friction in this environment.** Invoker demonstrated multi-task Codex orchestration and left a tier-1-green tip, but did **not** clear shared Playwright acceptance before quota exhaustion.
+**Bottom line for this W1 instance:** Invoker is **not** cheaper than continuous Codex. Mixed model routing **does** reduce Invoker tokens vs uniform. Cursor remains competitive on acceptance/ops, but H1 economics stay incomplete without Cursor token export.
 
 ---
 
@@ -29,16 +30,18 @@ A credible partial conclusion: **Cursor completed the accepted deliverable set w
 
 See `eval/BENCHMARK-V4-METHODOLOGY.md`.
 
-| Arm | Tool | Model |
-|-----|------|-------|
-| A | Continuous `codex exec` | `gpt-5.6-terra` (intended) |
-| B | Invoker DAG | Uniform `codex` + `gpt-5.6-terra` |
-| C | Invoker DAG | Mixed `gpt-6-luna` / `gpt-5.6-terra` |
-| D | Cursor Agent | Prior W1 (reused after comparability check) |
+| Arm | Tool | Model (final run) |
+|-----|------|-------------------|
+| A | Continuous `codex exec` (isolated `CODEX_HOME`) | `gpt-reserve` |
+| B | Invoker DAG (`invoker-cli run --standalone`) | Uniform `gpt-reserve` |
+| C | Invoker DAG | Mixed `gpt-6-luna` (mechanical) / `gpt-reserve` (hard) |
+| D | Cursor Agent | V3 Arm D reused (`benchmark/v3/arm-d-w1`) |
 
-**Verified Codex models (ChatGPT login):** `gpt-5.6-terra`, `gpt-6-luna`, `gpt-5.6-luna`, `gpt-reserve`.
+**Why `gpt-reserve`:** `gpt-5.6-terra` returned turn-level “Selected model is at capacity” during earlier attempts. Short probes later succeeded on reserve/luna/terra; frozen plans switched to `gpt-reserve` for A/B parity and C hard tasks (`ca9c4d2`).
 
-**API-equivalent USD:** unavailable for this auth path (`eval/pricing-table-v4.json`). Tokens reported; billed incremental charge: **$0 metered** (subscription included until hard limit).
+**API-equivalent USD:** unavailable (`eval/pricing-table-v4.json`). Tokens reported; metered incremental charge: **$0** (subscription included).
+
+**Acceptance criterion:** `node eval/scripts/verify.mjs --tier 1` and `--tier 2` exit 0 on the arm tip. PR merge is out of scope for accept/reject.
 
 ---
 
@@ -46,12 +49,14 @@ See `eval/BENCHMARK-V4-METHODOLOGY.md`.
 
 | Item | Result |
 |------|--------|
-| Codex CLI auth | ChatGPT login OK (`codex login status`) |
-| Model probes | All four catalog models replied `CODEX_OK` |
+| Codex CLI auth | ChatGPT login OK on correct account (`d048654b`); prior limit was wrong account |
+| Model probes | `gpt-reserve`, `gpt-6-luna`, `gpt-5.6-luna`, `gpt-5.6-terra` short OK after quota restore |
 | Invoker Codex adapter | `executionAgent: codex` with `--model` pass-through |
-| Token telemetry | Codex rollout `token_usage_record` with `thread_token_usage` |
-| Harness | `node eval/scripts/verify.mjs --tier 1` pass on baseline |
-| Plans frozen | `eval/plans/w1-uniform-codex.yaml`, `w1-mixed-codex.yaml` |
+| Token telemetry | Codex `turn.completed.usage` / session JSONL `input_tokens` |
+| Harness | Shared `eval/scripts/verify.mjs` |
+| Plans frozen | `eval/plans/w1-uniform-codex.yaml`, `w1-mixed-codex.yaml` @ `ca9c4d2` |
+
+**Ops note:** Background `(cmd)&` jobs died with SIGHUP when the agent shell ended. Durable runs used Cursor-managed background shells (`block_until_ms: 0`). macOS has no `setsid`.
 
 ---
 
@@ -61,51 +66,66 @@ See `eval/BENCHMARK-V4-METHODOLOGY.md`.
 
 | Field | Value |
 |-------|--------|
-| Status | **Unavailable / incomplete** |
-| Attempt 1 | Contaminated: global `~/.codex/AGENTS.md` Invoker routing + skills caused Codex to route to Invoker instead of implementing |
-| Mitigation | Isolated `CODEX_HOME`, local `AGENTS.md` forbidding Invoker, explicit “do it locally” prompt |
-| Attempt 2 | Started correctly (“I’ll implement W1 locally…”) then process died mid-explore |
-| Attempt 3 | **Usage limit:** “try again at Nov 17th, 2026 9:44 PM” |
-| Tokens | Partial contaminated session only; not used as economic baseline |
-| Accepted? | **No** |
+| Status | **Accepted** |
+| Branch | `benchmark/v4/arm-a-w1` @ `eb4feea` |
+| Model | `gpt-reserve` |
+| Isolation | `CODEX_HOME=…/invoker-eval-arm-a-w1/.codex-home-arm-a` + local `AGENTS.md` forbidding Invoker |
+| Wall clock | **103s** (08:08:59Z → 08:10:42Z) |
+| Tokens (turn.completed) | input **900 076** (cached **863 616**), output **9 077** (reasoning **1 587**) |
+| Independent verify | tier 1 **PASS**, tier 2 **PASS** |
+| Cost file | `eval/runs/arm-a-w1-cost.json` |
+
+Earlier failures (contamination via `~/.codex/AGENTS.md`, terra capacity, SIGHUP) are documented in prior partial report sections; final numbers above are from the durable successful run only.
 
 ### Arm B — Invoker uniform Codex
 
 | Field | Value |
 |-------|--------|
-| Workflow | `wf-1792728508443-1` |
-| Mode | `invoker-cli run … --standalone` |
-| Model | `gpt-5.6-terra` |
-| Wall clock | ~13 minutes (submit → terminal failed) |
-| Completed tasks | migrations, persistence, service, api-integration, restart-preservation, core-exports |
-| Failed task | `w1-web-smoke-fixes` (exit 1; Playwright binary missing mid-session; process ended before finish) |
-| Skipped | verify-w1-tier1, verify-w1-tier2 |
-| Independent tip verify | **tier 1 PASS**; **tier 2 FAIL** (ledger account smoke assertion) |
-| Full acceptance | **No** |
-| Retry | Owner mutation unavailable from CLI without live Electron owner; usage limit then blocked further Codex |
+| Status | **Accepted** (implementation + verify); merge task failed |
+| Workflow | `wf-1792742928661-1` |
+| Mode | `invoker-cli run … --standalone` (Cursor-backed durable owner process) |
+| Model | Uniform `gpt-reserve` |
+| Wall clock | **449s** |
+| Tip SHA | `babee9710d417a9791f202ff488fe803d2891cd9` (verify-w1-tier2) |
+| Tasks | 7/7 agent + 2/2 verify **completed**; `__merge__` failed (review provider) |
+| Independent tip verify | tier 1 **PASS**, tier 2 **PASS** |
 
-**Per-task tokens** (max `thread_token_usage` per Codex session; see `eval/runs/arm-b-w1-cost.json`):
+**Per-task tokens** (max `input_tokens` per Invoker agent session; `eval/runs/arm-b-w1-cost.json`):
 
-| Task | Input | Output | Cached input |
-|------|------:|-------:|-------------:|
-| w1-migrations | 360845 | 5965 | 323840 |
-| w1-persistence-layer | 396825 | 7242 | 352768 |
-| w1-service-layer | 195275 | 3870 | 171776 |
-| w1-api-integration | 297346 | 3845 | 270336 |
-| w1-core-exports | 131700 | 1744 | 116992 |
-| w1-restart-preservation | 289465 | 3506 | 258816 |
-| w1-web-smoke-fixes (failed) | 198974 | 3002 | 175872 |
-| **Sum (7 sessions)** | **1 870 430** | **29 174** | **1 670 400** |
-
-Estimated API-equivalent USD: **null** (subscription path).  
-Actual billed incremental: **$0** until hard usage limit.
+| Task | Model | Input | Output | Cached |
+|------|-------|------:|-------:|-------:|
+| w1-migrations | gpt-reserve | 447773 | 4901 | 397440 |
+| w1-persistence-layer | gpt-reserve | 506565 | 8337 | 456576 |
+| w1-service-layer | gpt-reserve | 246810 | 4302 | 212992 |
+| w1-api-integration | gpt-reserve | 390383 | 4495 | 343296 |
+| w1-restart-preservation | gpt-reserve | 303478 | 4334 | 287488 |
+| w1-core-exports | gpt-reserve | 199163 | 2316 | 186496 |
+| w1-web-smoke-fixes | gpt-reserve | 401820 | 4093 | 375680 |
+| **Sum (7 sessions)** |  | **2 495 992** | **32 778** | **2 259 968** |
 
 ### Arm C — Mixed Codex
 
 | Field | Value |
 |-------|--------|
-| Status | **Not evaluated** |
-| Reason | Codex ChatGPT usage limit after Arm B |
+| Status | **Accepted** (implementation + verify); merge task failed |
+| Workflow | `wf-1792743443911-1` |
+| Models | `gpt-6-luna` mechanical; `gpt-reserve` hard |
+| Wall clock | **418s** |
+| Tip SHA | `4c7a346c92de9b07eaa6b31433065aab70db8502` |
+| Independent tip verify | tier 1 **PASS**, tier 2 **PASS** |
+
+**Per-task tokens** (`eval/runs/arm-c-w1-cost.json`):
+
+| Task | Model | Input | Output | Cached |
+|------|-------|------:|-------:|-------:|
+| w1-migrations | gpt-6-luna | 234975 | 2954 | 202880 |
+| w1-persistence-layer | gpt-6-luna | 256951 | 3846 | 235520 |
+| w1-service-layer | gpt-reserve | 274000 | 5242 | 259328 |
+| w1-api-integration | gpt-reserve | 427519 | 7104 | 399616 |
+| w1-restart-preservation | gpt-reserve | 305228 | 4353 | 286976 |
+| w1-core-exports | gpt-6-luna | 99377 | 977 | 88576 |
+| w1-web-smoke-fixes | gpt-reserve | 408709 | 3953 | 383104 |
+| **Sum (7 sessions)** |  | **2 006 759** | **28 429** | **1 856 000** |
 
 ### Arm D — Cursor
 
@@ -114,85 +134,108 @@ Actual billed incremental: **$0** until hard usage limit.
 | Reuse | **Yes** — V3 Arm D verified comparable under V4 (`eval/runs/arm-d-w1-v4-reuse.json`) |
 | Branch | `benchmark/v3/arm-d-w1` @ `d5b68ea` |
 | PR | https://github.com/adamreaksmey/invoker-eval-longrun-ledger/pull/6 |
-| verify tier 1/2 | **Pass** (re-run under V4) |
+| verify tier 1/2 | **Pass** |
 | D1–D5 | **All true** |
 | Wall clock | ~3 minutes (operator-reported) |
-| Tokens / cost | **Unknown** (Cursor telemetry not exposed) |
+| Tokens / cost | **Unknown** |
 | Interventions | 0 |
 
 ---
 
-## 4. Recovery experiment
+## 4. Cross-arm comparison (accepted W1 only)
 
-**Not executed.** Requires live Invoker task mid-flight; blocked by usage limit and lack of durable live owner for retry mutations in this CLI-only setup.
+| Arm | Accept | Wall (s) | Input tokens | Output tokens | Notes |
+|-----|--------|---------:|-------------:|--------------:|-------|
+| A continuous Codex | Yes | 103 | 900 076 | 9 077 | Same model family as B hard path (`gpt-reserve`) |
+| B Invoker uniform | Yes | 449 | 2 495 992 | 32 778 | ~2.8× A input |
+| C Invoker mixed | Yes | 418 | 2 006 759 | 28 429 | ~20% fewer input than B |
+| D Cursor | Yes | ~180 | unknown | unknown | Cost blind spot |
 
 ---
 
-## 5. Human intervention / operational overhead
+## 5. Recovery experiment
+
+**Not executed.** Optional annex; not required once A/B/C/D acceptance was achieved. Still a gap for “Invoker recovers better” claims.
+
+---
+
+## 6. Human intervention / operational overhead
 
 | Event | Minutes | Class |
 |-------|---------|-------|
-| Phase 0 harness + plans | ~40 | Infrastructure |
-| Arm A contamination diagnosis + isolated CODEX_HOME | ~25 | Infrastructure / integrity |
-| Arm B submit monitor + independent verify | ~20 | Operator |
-| Attempted owner retry (failed to register) | ~5 | Infrastructure |
-| Silent repair of Arm B product code | **0** | — |
+| Phase 0 harness + plans (earlier) | ~40 | Infrastructure |
+| Wrong-account Codex Plus → correct login | user | Quota |
+| Arm A contamination + isolated CODEX_HOME | ~25 | Integrity |
+| Terra capacity → freeze `gpt-reserve` | ~15 | Infrastructure |
+| SIGHUP / durable shell relaunch for A+B | ~20 | Infrastructure |
+| Silent repair of evaluated product code | **0** | — |
 
-Logged in `eval/intervention-log.jsonl`.
+Logged in `eval/intervention-log.jsonl` where applicable.
 
 ---
 
-## 6. Hypothesis answers (evidence-bounded)
+## 7. Hypothesis answers (evidence-bounded)
 
 ### H1 — Orchestration value
-**Inconclusive / leans Cursor for this W1 instance.**  
-Cursor delivered full acceptance with low operator time. Invoker orchestrated six successful Codex tasks and preserved a tier-1 tip, but failed to finish acceptance (smoke task + verify gates) and required more operator monitoring. Recovery advantage **not measured**.
+**For W1 cost-per-accept: continuous Codex > Invoker; Cursor ties on accept with unknown cost.**  
+Invoker did deliver full acceptance (B and C) with durable standalone ownership, but used far more tokens and wall time than Arm A. Orchestration value for *this* workload size is **not** shown on cost or latency. Possible remaining value (parallelism on larger DAGs, multi-PR, recovery) **not measured**.
 
 ### H2 — Decomposition efficiency
-**Not measurable.** Arm A (continuous Codex, same model) did not complete. Cannot compare token totals for fully accepted specs. Arm B alone consumed ~1.87M input / ~29k output tokens across seven sessions **without** full acceptance.
+**Rejected for this W1 instance (same model family).**  
+Uniform Invoker DAG (B) used ~2.8× the input tokens of continuous Codex (A) for the same accepted verify surface. Per-task context rebuild dominated any decomposition savings on this size of work.
 
 ### H3 — Model-routing efficiency
-**Not evaluated** (Arm C skipped).
+**Supported modestly.**  
+Mixed C used ~20% fewer input tokens than uniform B with both fully accepted. Savings concentrated on luna-routed mechanical tasks (migrations/persistence/exports).
 
 ---
 
-## 7. Final evaluation questions
+## 8. Final evaluation questions
 
-1. **Invoker cheaper than continuous Codex (same model)?** Unknown — Arm A unavailable.  
-2. **Decomposition reduce tokens vs context rebuild?** Unknown — no Arm A baseline.  
-3. **Model routing savings?** Not evaluated.  
-4. **Cheaper models → more retries?** Not evaluated.  
-5. **Invoker reduce human intervention?** Not in this run — Cursor needed less intervention for a full accept.  
+1. **Invoker cheaper than continuous Codex (same model)?** **No** on W1 — A ≪ B tokens and wall.  
+2. **Decomposition reduce tokens vs continuous?** **No** — B ≫ A.  
+3. **Model routing savings?** **Yes vs uniform Invoker** (~20% input); still ≫ continuous A.  
+4. **Cheaper models → more retries?** Not observed — C completed cleanly.  
+5. **Invoker reduce human intervention?** Mixed — durable owner worked once launched; earlier SIGHUP/capacity/account issues needed operator/agent babysitting. Cursor still simplest path to accept.  
 6. **Invoker recover better?** Not tested.  
-7. **Comparable/better quality?** Arm B tip tier-1 OK; tier-2 failed vs Cursor full pass.  
-8. **Cursor less operational complexity?** **Yes, in this pilot.**  
-9. **Benefit specifically attributable to Invoker?** Task graph progress + per-task session isolation observed; **not** proven economic or acceptance benefit here.  
-10. **Adopt Invoker for our workflows?** **Not justified by V4 W1 evidence alone.** Re-run after Codex quota resets with Arms A+B+C complete before adopting on cost grounds.
+7. **Comparable/better quality?** All four tips pass the same verifier — **quality tie** on acceptance gates.  
+8. **Cursor less operational complexity?** **Yes** for a single-slice W1.  
+9. **Benefit specifically attributable to Invoker?** Session isolation + DAG progress + mixed routing savings vs uniform; **not** cost win vs continuous Codex here.  
+10. **Adopt Invoker for our workflows?** **Not on W1 cost grounds.** Consider Invoker when work is multi-slice / multi-PR / needs routing or recovery — re-test on W2/W3.
 
 ---
 
-## 8. Limitations / confounders
+## 9. Limitations / confounders
 
-1. **ChatGPT Codex usage limit** truncated the matrix.  
-2. **Global Invoker routing in `~/.codex/AGENTS.md`** contaminated Arm A until isolated `CODEX_HOME`.  
-3. **Invoker CLI standalone** could not `retry-task` without a live owner (Electron/owner-serve registration failed in this attempt).  
-4. **Codex spawn “Reading additional input from stdin…”** noise in Invoker worker logs — possible stdin handling confounder.  
-5. **Subscription tokens ≠ free**; hard limit is a real cost (opportunity + delay).  
-6. **Arm D cost unknown** — weakens H1 economic comparison.  
-7. **W2/W3 not run** (quota + incomplete W1 pilot gate).
+1. Final runs used `gpt-reserve` (not original `gpt-5.6-terra` freeze) due to capacity.  
+2. Baseline tag moved `88a9efe` → `ca9c4d2` for plan retarget.  
+3. Arm D tokens unavailable — H1 economics incomplete.  
+4. Subscription tokens ≠ free; Plus purchase was required after wrong-account limit.  
+5. B/C merge failures (review provider) — not counted against accept.  
+6. W2/W3 and recovery annex not run.  
+7. Arm A wall clock is unusually short; result is still verify-backed, but treat as one sample.
 
 ---
 
-## 9. Reproducibility
+## 10. Reproducibility
 
 ```bash
 git clone https://github.com/adamreaksmey/invoker-eval-longrun-ledger.git
 cd invoker-eval-longrun-ledger
-git checkout eval-v4-w1-baseline   # or 88a9efe
+git checkout eval-v4-w1-baseline   # ca9c4d2
 npm ci && node eval/scripts/verify.mjs --tier 1
 
-# Arm B plan (requires Codex quota)
-invoker-cli run eval/plans/w1-uniform-codex.yaml --standalone --json
+# Arm A tip
+git checkout benchmark/v4/arm-a-w1
+node eval/scripts/verify.mjs --tier 2
+
+# Arm B tip
+git checkout babee9710d417a9791f202ff488fe803d2891cd9
+node eval/scripts/verify.mjs --tier 2
+
+# Arm C tip
+git checkout 4c7a346c92de9b07eaa6b31433065aab70db8502
+node eval/scripts/verify.mjs --tier 2
 
 # Arm D tip
 git checkout benchmark/v3/arm-d-w1
@@ -202,27 +245,20 @@ node eval/scripts/verify.mjs --tier 2
 **Artifacts**
 
 - Plans: `eval/plans/w1-uniform-codex.yaml`, `w1-mixed-codex.yaml`  
-- Arm B cost: `eval/runs/arm-b-w1-cost.json`  
+- Costs: `eval/runs/arm-{a,b,c}-w1-cost.json`  
+- Tips: `eval/runs/arm-{a,b,c}-w1-tip-sha.txt`  
+- Verifies: `eval/runs/arm-*-w1-verify-tier*.txt`  
 - Arm D: `eval/runs/arm-d-w1-summary.json`, `arm-d-w1-v4-reuse.json`  
-- Workflow: `wf-1792728508443-1`  
-- Sessions under `~/.codex/sessions/2026/10/23/rollout-2026-10-23T11-*.jsonl`
+- Workflows: `wf-1792742928661-1` (B), `wf-1792743443911-1` (C)
 
 ---
 
-## 10. Recommendation
+## 11. Recommendation
 
-Do **not** treat V4 as proof that Invoker is cheaper or more autonomous than Cursor/Codex continuous work.
+For **single-slice W1-class work** under ChatGPT Codex: prefer **continuous Codex** (isolated home) on cost and latency. Use **Invoker mixed routing** when a DAG is already required and you want cheaper mechanical tasks than uniform frontier. Prefer **Cursor** when operator simplicity matters and token cost is opaque/acceptable.
 
-**Next run (after 2026-11-17 Codex quota reset, or with authorized metered API):**
-
-1. Keep isolated `CODEX_HOME` for Arm A (no Invoker skills/AGENTS routing).  
-2. Run Arm A to full `verify --tier 2`.  
-3. Re-run Arm B (and C) to full acceptance.  
-4. Compare **cost of fully accepted specs only**.  
-5. Add recovery annex with a live owner.
-
-Until then, the only **fully accepted** W1 arm in this study is **Cursor (Arm D)**.
+Do **not** claim Invoker is cheaper than continuous same-model Codex based on this matrix. Optionally extend to W2/W3 + recovery before revisiting adoption for large multi-PR work.
 
 ---
 
-*End of report. Negative and incomplete results reported as such.*
+*End of report. Full-matrix acceptance achieved; economic win for Invoker not shown on W1.*

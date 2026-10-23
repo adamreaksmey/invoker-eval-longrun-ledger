@@ -1,0 +1,16 @@
+{
+  "arm": "A",
+  "model": "gpt-reserve",
+  "commit": "eb4feea",
+  "verifyTier1": 0,
+  "verifyTier2": 0,
+  "usage_turn_completed": {
+    "input_tokens": 900076,
+    "cached_input_tokens": 863616,
+    "output_tokens": 9077,
+    "reasoning_output_tokens": 1587
+  },
+  "pricing": "ChatGPT Codex subscription-included; no API-equivalent USD",
+  "started": "2026-10-23T08:08:59Z",
+  "finished": "2026-10-23T08:10:42Z"
+}

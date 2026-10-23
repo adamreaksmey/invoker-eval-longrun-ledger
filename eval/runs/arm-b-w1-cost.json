@@ -1,65 +1,82 @@
 {
   "arm": "B",
-  "workflowId": "wf-1792728508443-1",
-  "model": "gpt-5.6-terra",
-  "billingMode": "chatgpt_subscription_included",
-  "estimatedCostUsd": null,
-  "perTask": {
-    "w1-migrations": {
-      "sessionId": "01a166f2-3b21-7b33-bae0-2444a797d501",
-      "input": 360845,
-      "output": 5965,
-      "cached": 323840,
-      "cache_write": 0
+  "workflowId": "wf-1792742928661-1",
+  "model": "gpt-reserve",
+  "tipSha": "babee9710d417a9791f202ff488fe803d2891cd9",
+  "verifyTier1": 0,
+  "verifyTier2": 0,
+  "implementationTasksCompleted": 7,
+  "verifyTasksCompleted": 2,
+  "mergeFailed": "review provider not configured (ignored for eval accept)",
+  "sessions": [
+    {
+      "session": "01a167ce-47a0-7211-9c3b-51e5dbdce2d1.jsonl",
+      "model": null,
+      "input": 447773,
+      "output": 4901,
+      "cached_input": 397440,
+      "total": 0,
+      "mtime": 1792742990.8904371
     },
-    "w1-persistence-layer": {
-      "sessionId": "01a166f4-6c00-7420-830b-c51abc35d430",
-      "input": 396825,
-      "output": 7242,
-      "cached": 352768,
-      "cache_write": 0
+    {
+      "session": "01a167cf-385a-70b2-be7d-29db9823b569.jsonl",
+      "model": null,
+      "input": 506565,
+      "output": 8337,
+      "cached_input": 456576,
+      "total": 0,
+      "mtime": 1792743084.7475646
     },
-    "w1-service-layer": {
-      "sessionId": "01a166f7-2a96-7fe3-8f11-5f046e4d7380",
-      "input": 195275,
-      "output": 3870,
-      "cached": 171776,
-      "cache_write": 0
+    {
+      "session": "01a167d0-aa9a-7200-a306-78bb2594be0e.jsonl",
+      "model": null,
+      "input": 246810,
+      "output": 4302,
+      "cached_input": 212992,
+      "total": 0,
+      "mtime": 1792743138.7409341
     },
-    "w1-api-integration": {
-      "sessionId": "01a166f7-f4ce-7b22-8720-4446fb2b9473",
-      "input": 297346,
-      "output": 3845,
-      "cached": 270336,
-      "cache_write": 0
+    {
+      "session": "01a167d1-79cd-7430-887f-711403507827.jsonl",
+      "model": null,
+      "input": 390383,
+      "output": 4495,
+      "cached_input": 343296,
+      "total": 0,
+      "mtime": 1792743193.1915565
     },
-    "w1-core-exports": {
-      "sessionId": "01a166f9-a1e0-7263-8374-aac0d96cbcc5",
-      "input": 131700,
-      "output": 1744,
-      "cached": 116992,
-      "cache_write": 0
+    {
+      "session": "01a167d2-5466-7572-8213-4c2f5c3a05c1.jsonl",
+      "model": null,
+      "input": 199163,
+      "output": 2316,
+      "cached_input": 186496,
+      "total": 0,
+      "mtime": 1792743227.94711
     },
-    "w1-restart-preservation": {
-      "sessionId": "01a166fa-a122-79b0-b965-716470f38f2b",
-      "input": 289465,
-      "output": 3506,
-      "cached": 258816,
-      "cache_write": 0
+    {
+      "session": "01a167d2-d603-7ad1-9fde-092816ad11af.jsonl",
+      "model": null,
+      "input": 303478,
+      "output": 4334,
+      "cached_input": 287488,
+      "total": 0,
+      "mtime": 1792743284.6899521
     },
-    "w1-web-smoke-fixes": {
-      "sessionId": "01a166fc-b394-7403-9278-6640a2b2eebc",
-      "input": 198974,
-      "output": 3002,
-      "cached": 175872,
-      "cache_write": 0
+    {
+      "session": "01a167d3-b634-7290-982e-32d0ff0c8b08.jsonl",
+      "model": null,
+      "input": 401820,
+      "output": 4093,
+      "cached_input": 375680,
+      "total": 0,
+      "mtime": 1792743339.3576581
     }
-  },
+  ],
   "totals": {
-    "input": 1870430,
-    "output": 29174,
-    "cached": 1670400,
-    "cache_write": 0
+    "input_tokens": 2495992,
+    "output_tokens": 32778,
+    "cached_input_tokens": 2259968
   },
-  "note": "thread_token_usage maxima summed across tasks (may over-count shared cache effects across tasks)"
+  "pricing": "ChatGPT Codex subscription-included; no API-equivalent USD"
 }

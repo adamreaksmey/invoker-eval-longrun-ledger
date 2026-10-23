@@ -1,0 +1,78 @@
+
+added 194 packages, and audited 198 packages in 885ms
+
+52 packages are looking for funding
+  run `npm fund` for details
+
+3 vulnerabilities (1 moderate, 2 critical)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+[verify] PASS: npm ci
+
+> personal-ledger@0.1.0 test
+> npm run test --workspaces --if-present
+
+
+> @personal-ledger/api@0.1.0 test
+> vitest run --passWithNoTests
+
+
+ RUN  v3.2.7 /private/tmp/invoker-eval-arm-c-verify-36528/packages/api
+
+ ✓ src/db.test.ts (1 test) 2ms
+ ✓ src/auth-store.test.ts (3 tests) 125ms
+ ✓ src/api.integration.test.ts (2 tests) 114ms
+ ✓ src/auth-routes.test.ts (3 tests) 203ms
+
+ Test Files  4 passed (4)
+      Tests  9 passed (9)
+   Start at  15:24:52
+   Duration  431ms (transform 98ms, setup 0ms, collect 214ms, tests 445ms, environment 0ms, prepare 150ms)
+
+
+> @personal-ledger/core@0.1.0 test
+> vitest run --passWithNoTests
+
+
+ RUN  v3.2.7 /private/tmp/invoker-eval-arm-c-verify-36528/packages/core
+
+ ✓ src/categorization.test.ts (11 tests) 2ms
+ ✓ src/sqlite-ledger.test.ts (3 tests) 3ms
+ ✓ src/ledger.test.ts (5 tests) 4ms
+ ✓ src/ledger-service.test.ts (3 tests) 2ms
+ ✓ src/reports.test.ts (3 tests) 9ms
+ ✓ src/auth.test.ts (4 tests) 115ms
+
+ Test Files  6 passed (6)
+      Tests  29 passed (29)
+   Start at  15:24:53
+   Duration  310ms (transform 151ms, setup 0ms, collect 206ms, tests 134ms, environment 1ms, prepare 277ms)
+
+[verify] PASS: npm test
+
+> personal-ledger@0.1.0 build
+> npm run build --workspaces --if-present
+
+
+> @personal-ledger/web@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.45 kB │ gzip:  0.29 kB
+dist/assets/index-C9L4ThPf.css    7.86 kB │ gzip:  2.41 kB
+dist/assets/index-Bf7-0nQ_.js   232.96 kB │ gzip: 72.49 kB
+✓ built in 314ms
+[verify] PASS: npm run build
+[verify] All requested tiers passed.

@@ -1,0 +1,66 @@
+{
+  "arm": "C",
+  "workflowId": "wf-1792743443911-1",
+  "models": "gpt-6-luna (mechanical) + gpt-reserve (hard)",
+  "tipSha": "4c7a346c92de9b07eaa6b31433065aab70db8502",
+  "verifyTier1": 0,
+  "verifyTier2": 0,
+  "sessions": [
+    {
+      "session": "01a167d6-2511-7eb3-b2a7-f06400db461e.jsonl",
+      "input": 234975,
+      "output": 2954,
+      "cached_input": 202880,
+      "mtime": 1792743491.394133
+    },
+    {
+      "session": "01a167d6-dbc3-7be0-bb49-93012d7b11e3.jsonl",
+      "input": 256951,
+      "output": 3846,
+      "cached_input": 235520,
+      "mtime": 1792743540.8353748
+    },
+    {
+      "session": "01a167d7-9dd7-72d3-a055-69250ecf045b.jsonl",
+      "input": 274000,
+      "output": 5242,
+      "cached_input": 259328,
+      "mtime": 1792743604.4191785
+    },
+    {
+      "session": "01a167d8-9754-7711-955d-fdce7720d328.jsonl",
+      "input": 427519,
+      "output": 7104,
+      "cached_input": 399616,
+      "mtime": 1792743681.99458
+    },
+    {
+      "session": "01a167d9-cf0a-7072-ac8c-0f2652676e33.jsonl",
+      "input": 99377,
+      "output": 977,
+      "cached_input": 88576,
+      "mtime": 1792743711.824824
+    },
+    {
+      "session": "01a167da-3a66-7613-ac9e-ca5cbb26cc39.jsonl",
+      "input": 305228,
+      "output": 4353,
+      "cached_input": 286976,
+      "mtime": 1792743765.2917545
+    },
+    {
+      "session": "01a167db-0b68-7cc0-9b33-8dc9a58a6c6f.jsonl",
+      "input": 408709,
+      "output": 3953,
+      "cached_input": 383104,
+      "mtime": 1792743821.391397
+    }
+  ],
+  "totals": {
+    "input_tokens": 2006759,
+    "output_tokens": 28429,
+    "cached_input_tokens": 1856000
+  },
+  "pricing": "ChatGPT Codex subscription-included; no API-equivalent USD",
+  "mergeFailed": "review provider not configured (ignored for eval accept)"
+}
