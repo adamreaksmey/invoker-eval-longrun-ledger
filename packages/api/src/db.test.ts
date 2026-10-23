@@ -9,8 +9,9 @@ describe("ledger database migrations", () => {
   it("applies v1 cleanly to an empty database and records it once", () => {
     db = openDatabase(":memory:");
 
-    expect(db.prepare("SELECT version, name FROM schema_migrations").all()).toEqual([
+    expect(db.prepare("SELECT version, name FROM schema_migrations ORDER BY version").all()).toEqual([
       { version: 1, name: "create_ledger_tables" },
+      { version: 2, name: "scope_ledger_ids_to_users" },
     ]);
     expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all())
       .toEqual([
@@ -22,6 +23,6 @@ describe("ledger database migrations", () => {
       ]);
 
     runMigrations(db);
-    expect(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get()).toEqual({ count: 1 });
+    expect(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get()).toEqual({ count: 2 });
   });
 });

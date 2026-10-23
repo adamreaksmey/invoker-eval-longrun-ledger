@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 const MIGRATIONS = [
   { version: 1, name: "create_ledger_tables", file: "001_create_ledger_tables.sql" },
+  { version: 2, name: "scope_ledger_ids_to_users", file: "002_scope_ledger_ids_to_users.sql" },
 ] as const;
 
 /** Open the local SQLite database and ensure the persistence schema exists. */
