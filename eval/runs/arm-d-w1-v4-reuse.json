@@ -1,0 +1,17 @@
+{
+  "arm": "D",
+  "workload": "W1",
+  "benchmark": "V4",
+  "reusedFrom": "V3 Arm D",
+  "comparable": true,
+  "reasons": [
+    "Same product baseline SHA 0d3bf647 for starting implementation",
+    "Same W1 functional requirements (persisted ledger modernization)",
+    "Same shared verifier: node eval/scripts/verify.mjs --tier 1 and --tier 2",
+    "Operator re-ran verify --tier 2 successfully under V4"
+  ],
+  "differencesDocumented": [
+    "Arm D started on bare baseline then copied harness; Arms A/B/C start from eval-v4-w1-baseline which already includes harness",
+    "Token/cost telemetry unavailable for Cursor"
+  ]
+}

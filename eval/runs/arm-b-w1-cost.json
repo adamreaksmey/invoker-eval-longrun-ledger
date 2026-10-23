@@ -1,0 +1,65 @@
+{
+  "arm": "B",
+  "workflowId": "wf-1792728508443-1",
+  "model": "gpt-5.6-terra",
+  "billingMode": "chatgpt_subscription_included",
+  "estimatedCostUsd": null,
+  "perTask": {
+    "w1-migrations": {
+      "sessionId": "01a166f2-3b21-7b33-bae0-2444a797d501",
+      "input": 360845,
+      "output": 5965,
+      "cached": 323840,
+      "cache_write": 0
+    },
+    "w1-persistence-layer": {
+      "sessionId": "01a166f4-6c00-7420-830b-c51abc35d430",
+      "input": 396825,
+      "output": 7242,
+      "cached": 352768,
+      "cache_write": 0
+    },
+    "w1-service-layer": {
+      "sessionId": "01a166f7-2a96-7fe3-8f11-5f046e4d7380",
+      "input": 195275,
+      "output": 3870,
+      "cached": 171776,
+      "cache_write": 0
+    },
+    "w1-api-integration": {
+      "sessionId": "01a166f7-f4ce-7b22-8720-4446fb2b9473",
+      "input": 297346,
+      "output": 3845,
+      "cached": 270336,
+      "cache_write": 0
+    },
+    "w1-core-exports": {
+      "sessionId": "01a166f9-a1e0-7263-8374-aac0d96cbcc5",
+      "input": 131700,
+      "output": 1744,
+      "cached": 116992,
+      "cache_write": 0
+    },
+    "w1-restart-preservation": {
+      "sessionId": "01a166fa-a122-79b0-b965-716470f38f2b",
+      "input": 289465,
+      "output": 3506,
+      "cached": 258816,
+      "cache_write": 0
+    },
+    "w1-web-smoke-fixes": {
+      "sessionId": "01a166fc-b394-7403-9278-6640a2b2eebc",
+      "input": 198974,
+      "output": 3002,
+      "cached": 175872,
+      "cache_write": 0
+    }
+  },
+  "totals": {
+    "input": 1870430,
+    "output": 29174,
+    "cached": 1670400,
+    "cache_write": 0
+  },
+  "note": "thread_token_usage maxima summed across tasks (may over-count shared cache effects across tasks)"
+}
