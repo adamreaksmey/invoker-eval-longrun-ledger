@@ -8,6 +8,12 @@
   ],
   "scripts": {
     "test": "npm run test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "test:e2e": "playwright test",
+    "verify": "node eval/scripts/verify.mjs --tier 0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "typescript": "^7.0.2"
   }
 }

@@ -10,6 +10,8 @@ This repository uses npm workspaces. Shared ledger and authentication rules live
 
 Tests use Vitest. Start the API with `npm run start --workspace @personal-ledger/api`; it listens on `127.0.0.1:3000` by default. Set `PORT` and `DATABASE_PATH` to override those defaults.
 
+Accounts and transactions are persisted per user in the same SQLite file as authentication (`DATABASE_PATH`, default `ledger.sqlite`). Schema changes are versioned migrations in `packages/api/src/migrations.ts`, applied automatically on startup and tracked in the `schema_migrations` table. Ledger operations live in `LedgerService` (`packages/core/src/ledger-service.ts`), which is independent of Express and uses a pluggable `LedgerRepository`; the API uses `SqliteLedgerRepository`.
+
 Start the web app in a second terminal with `npm run dev --workspace @personal-ledger/web` (http://127.0.0.1:5173). The dev server proxies `/api/*` to the local API, so the browser uses the API's HttpOnly session cookie without a cloud service or token storage.
 
 ### Auth smoke steps
@@ -19,6 +21,8 @@ Start the web app in a second terminal with `npm run dev --workspace @personal-l
 3. Confirm the ledger loads, add an account, then record an income and an expense. Confirm the balance and recent activity update.
 4. Refresh the page and confirm the session restores; choose **Sign out** and confirm the login screen returns.
 5. Sign in again with the same account. To check account separation, use a private browser window and create a second user; each user should see an empty ledger.
+
+Run the Playwright smoke tests (auth session and ledger flow) with `npx playwright install chromium` once, then `npm run test:e2e`. `npm run verify` runs install, tests, build, and the e2e smoke in sequence.
 
 `npm run build` builds the web app and all other workspaces.
 
