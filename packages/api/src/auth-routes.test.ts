@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import request from "supertest";
 import type { DatabaseSync } from "node:sqlite";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { openDatabase } from "./db";
 import { createApp } from "./index";
 
@@ -55,5 +58,29 @@ describe("authentication and ledger API", () => {
     await request(server).get("/accounts").set("Cookie", aliceCookie).expect(200, [
       { id: "checking", name: "Checking" }, { id: "savings", name: "Savings" },
     ]);
+  });
+
+  it("preserves a user's ledger after closing and reopening the API database", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "personal-ledger-"));
+    const filename = join(directory, "ledger.sqlite");
+    try {
+      db = openDatabase(filename);
+      const firstApp = createApp({ db, sessionSecret: "test-session-secret" });
+      const registered = await request(firstApp).post("/auth/register").send({ username: "restart_user", password: "secret" }).expect(201);
+      const cookie = registered.headers["set-cookie"][0].split(";")[0];
+      await request(firstApp).post("/accounts").set("Cookie", cookie).send({ id: "checking", name: "Checking" }).expect(201);
+      await request(firstApp).post("/transactions").set("Cookie", cookie).send({ id: "pay", accountId: "checking", amountCents: 4200 }).expect(201);
+      db.close();
+      db = openDatabase(filename);
+
+      const restartedApp = createApp({ db, sessionSecret: "test-session-secret" });
+      await request(restartedApp).get("/accounts").set("Cookie", cookie).expect(200, [{ id: "checking", name: "Checking" }]);
+      await request(restartedApp).get("/transactions").set("Cookie", cookie).expect(200, [{ id: "pay", accountId: "checking", amountCents: 4200 }]);
+      await request(restartedApp).get("/accounts/checking/balance").set("Cookie", cookie).expect(200, { balanceCents: 4200 });
+    } finally {
+      db?.close();
+      db = undefined;
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
