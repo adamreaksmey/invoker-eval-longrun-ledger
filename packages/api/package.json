@@ -1,5 +1,14 @@
 {
   "name": "@personal-ledger/api",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@personal-ledger/core": "*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
 }
