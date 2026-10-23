@@ -1,0 +1,20 @@
+{
+  "track": "A-orchestration",
+  "attempt": 2,
+  "priorFailure": {
+    "workflowId": "wf-1792720299207-5",
+    "task": "integrate-core-exports",
+    "type": "merge_conflict",
+    "conflictFiles": ["packages/core/src/index.ts"],
+    "cause": "parallel implement tasks each edited packages/core/src/index.ts"
+  },
+  "fixApplied": "parallel implement prompts must not edit index.ts; integrate-core-exports owns barrel exports",
+  "edbertStudyDimensions": {
+    "orchestrationDagAndChain": true,
+    "explicitExecutionAgentPerTask": true,
+    "costPerStageOperatorCapture": true,
+    "sameSessionChatBaselineArm": "INVOKER-LONG-RUN-EVAL.md#chat-baseline-arm",
+    "multiModelSweepTrackB": "deferred-separate-submits"
+  },
+  "stage1ExecutionAgent": "codex"
+}
