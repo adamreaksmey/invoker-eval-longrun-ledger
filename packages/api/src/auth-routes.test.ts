@@ -56,4 +56,35 @@ describe("authentication and ledger API", () => {
       { id: "checking", name: "Checking" }, { id: "savings", name: "Savings" },
     ]);
   });
+
+  it("persists account and transaction CRUD reads across app instances", async () => {
+    const server = app();
+    const registered = await request(server).post("/auth/register").send({ username: "alice", password: "secret" }).expect(201);
+    const cookie = registered.headers["set-cookie"][0].split(";")[0];
+
+    await request(server).post("/accounts").set("Cookie", cookie)
+      .send({ id: "checking", name: "Checking" }).expect(201, { id: "checking", name: "Checking" });
+    await request(server).post("/transactions").set("Cookie", cookie)
+      .send({ id: "pay", accountId: "checking", amountCents: -1250, description: " rent " })
+      .expect(201, { id: "pay", accountId: "checking", amountCents: -1250, description: "rent" });
+
+    expect(await request(server).get("/accounts").set("Cookie", cookie).expect(200)).toMatchObject({ body: [
+      { id: "checking", name: "Checking" },
+    ] });
+    await request(server).get("/transactions?accountId=checking").set("Cookie", cookie).expect(200, [
+      { id: "pay", accountId: "checking", amountCents: -1250, description: "rent" },
+    ]);
+
+    const login = await request(server).post("/auth/login").send({ username: "alice", password: "secret" }).expect(200);
+    const loginCookie = login.headers["set-cookie"][0].split(";")[0];
+    await request(server).get("/accounts/checking/balance").set("Cookie", loginCookie).expect(200, { balanceCents: -1250 });
+
+    const reopened = createApp({ db: db!, sessionSecret: "test-session-secret" });
+    await request(reopened).get("/accounts").set("Cookie", loginCookie).expect(200, [
+      { id: "checking", name: "Checking" },
+    ]);
+    await request(reopened).get("/transactions").set("Cookie", loginCookie).expect(200, [
+      { id: "pay", accountId: "checking", amountCents: -1250, description: "rent" },
+    ]);
+  });
 });
